@@ -109,11 +109,12 @@ do
         lockfile=${out_path_file/.nc/-IN-PROGRESS}  # to prevent 2 jobs processing the same file 
         if [[ ! -f ${out_path_file} ]] && [[ ! -f ${lockfile} ]]
         then
-            # touch ${lockfile}
+            touch ${lockfile}
             echo "ncks -v ${var} -7 -L 5 --baa=4 --ppc ${var}=${sf[${var}]} ${path_file} ${out_path_file}"
-            # chgrp ik11 ${out_path_file}
-            # chmod g+r ${out_path_file}
-            # rm ${lockfile}
+            ncks -v ${var} -7 -L 5 --baa=4 --ppc ${var}=${sf[${var}]} ${path_file} ${out_path_file}
+            chgrp ik11 ${out_path_file}
+            chmod g+r ${out_path_file}
+            rm ${lockfile}
         else
             echo "--- Skipping ${path_file}"
         fi
