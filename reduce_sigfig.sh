@@ -1,5 +1,11 @@
-#!/usr/bin/env bash
-
+#!/bin/bash
+ 
+#PBS -l ncpus=1
+#PBS -l mem=8GB
+#PBS -q normal
+#PBS -l walltime=01:00:00
+#PBS -l storage=gdata/ik11+scratch/v45+scratch/x77
+#PBS -l wd
 
 lev_comp=5
 num_dir=732
@@ -30,7 +36,5 @@ do
 	then
 		ppc=3
 	fi
-	#echo $name_var $ppc
-	#echo ./output/bit_groomed_ppc_${ppc}_${name_file}
-	ncks -7 -L ${lev_comp} --baa=4 --ppc default=${ppc} ${path_file} ./bit_groomed_${name_file}
+	ncks -O -7 -L ${lev_comp} --baa=4 --ppc default=${ppc} ${path_file} ./bit_groomed_${name_file}
 done
