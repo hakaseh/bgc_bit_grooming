@@ -1,40 +1,138 @@
 #!/bin/bash
- 
 #PBS -l ncpus=1
 #PBS -l mem=12GB
-#PBS -q normal
-#PBS -l walltime=00:30:00
+#PBS -q copyq
+#PBS -l walltime=05:00:00
 #PBS -l storage=gdata/ik11+scratch/v45+scratch/x77
 #PBS -l wd
 
-lev_comp=5
-num_dir=734
-path_ocean=/g/data/ik11/outputs/access-om2-01/01deg_jra55v140_iaf_cycle4/output${num_dir}/ocean
+# Reduce precision of output files.
+# Script accepts 1 arg, which is the path to an ocean output dir, e.g.
+# /g/data/ik11/outputs/access-om2-01/01deg_jra55v140_iaf_cycle4/output734/ocean
 
-for path_file in ${path_ocean}/oceanbgc-[2,3]d-*.nc
+module load nco
+
+# define number of significant figures, copied from
+# https://docs.google.com/spreadsheets/d/1UCdeUC1zi-52g7-nAFyXAZVy5iaOGZz2fmyMiPNVILU/edit#gid=1669515973
+# NB: some keys are repeated, so keep their values the same to avoid confusion
+declare -A sf
+sf[adic]=4
+sf[dic]=4
+sf[alk]=4
+sf[o2]=4
+sf[no3]=3
+sf[fe]=3
+sf[phy]=3
+sf[zoo]=3
+sf[det]=3
+sf[caco3]=3
+sf[stf09]=4
+sf[stf07]=4
+sf[stf03]=4
+sf[pprod_gross_2d]=3
+sf[npp2d]=3
+sf[wdet100]=3
+sf[pprod_gross]=3
+sf[npp3d]=3
+sf[radbio3d]=3
+sf[no3_xflux_adv]=3
+sf[no3_yflux_adv]=3
+sf[no3_zflux_adv]=3
+sf[src01]=2
+sf[fe_xflux_adv]=3
+sf[fe_yflux_adv]=3
+sf[fe_zflux_adv]=3
+sf[src10]=2
+sf[o2_xflux_adv]=3
+sf[o2_yflux_adv]=3
+sf[o2_zflux_adv]=3
+sf[src03]=2
+sf[adic_xflux_adv]=3
+sf[adic_yflux_adv]=3
+sf[adic_zflux_adv]=3
+sf[src09]=2
+sf[dic_xflux_adv]=3
+sf[dic_yflux_adv]=3
+sf[dic_zflux_adv]=3
+sf[src07]=2
+sf[det_xflux_adv]=3
+sf[det_yflux_adv]=3
+sf[det_zflux_adv]=3
+sf[src05]=2
+sf[caco3_xflux_adv]=3
+sf[caco3_yflux_adv]=3
+sf[caco3_zflux_adv]=3
+sf[src06]=2
+sf[surface_adic]=4
+sf[surface_dic]=4
+sf[surface_alk]=4
+sf[surface_o2]=4
+sf[surface_no3]=3
+sf[surface_fe]=3
+sf[surface_phy]=3
+sf[surface_zoo]=3
+sf[surface_det]=3
+sf[surface_caco3]=3
+sf[adic_intmld]=4
+sf[dic_intmld]=4
+sf[o2_intmld]=4
+sf[no3_intmld]=3
+sf[fe_intmld]=3
+sf[phy_intmld]=3
+sf[det_intmld]=3
+sf[pprod_gross_intmld]=3
+sf[npp_intmld]=3
+sf[radbio_intmld]=3
+sf[adic_int100]=4
+sf[dic_int100]=4
+sf[o2_int100]=4
+sf[no3_int100]=3
+sf[fe_int100]=3
+sf[phy_int100]=3
+sf[det_int100]=3
+sf[pprod_gross_int100]=3
+sf[npp_int100]=3
+sf[radbio_int100]=3
+sf[stf09]=4
+sf[stf07]=4
+sf[stf03]=4
+sf[paco2]=4
+sf[pco2]=4
+sf[pprod_gross_2d]=3
+sf[npp1]=3
+sf[npp2d]=3
+sf[radbio1]=3
+sf[wdet100]=3
+sf[adic]=4
+sf[dic]=4
+sf[o2]=4
+sf[no3]=3
+sf[fe]=3
+sf[phy]=3
+sf[surface_o2]=4
+sf[radbio1]=3
+sf[surface_no3]=3
+sf[surface_fe]=3
+sf[surface_phy]=3
+
+shopt -s nullglob
+
+for var in "${!sf[@]}"
 do
-	name_file="${path_file##*/}"
-	trim_front="${name_file##oceanbgc-[2,3]d-}"
-	#Trim back to get variable name
-	name_var="${trim_front%%-*}"
-	#Initialise ppc to zero to avoid potential error.
-	ppc=0
-
-	#Set the sig fig according to the variable name
-
-	#ppc=4 for adic,dic,alk,o2
-	if [ "${name_var}" == "adic" ] || [ "${name_var}" == "dic" ] || [ "${name_var}" == "alk" ] || [ "${name_var}" == "o2" ]
-	then
-		ppc=4
-	elif [ "${name_var}" == "no3" ] || [ "${name_var}" == "fe" ] || [ "${name_var}" == "phy" ] || [ "${name_var}" == "zoo" ] || [ "${name_var}" == "det" ] || [ "${name_var}" == "caco3" ]
-	then
-		ppc=3
-	elif [ "${name_var}" == "stf03" ] || [ "${name_var}" == "stf07" ] || [ "${name_var}" == "stf09" ]
-	then
-		ppc=4
-	elif [ "${name_var}" == "npp2d" ] || [ "${name_var}" == "pprod_gross_2d" ] || [ "${name_var}" == "wdet100" ]
-	then
-		ppc=3
-	fi
-	ncks -O -7 -L ${lev_comp} --baa=4 --ppc default=${ppc} ${path_file} ./bit_groomed_${name_file}
+    echo ${var}
+    for path_file in ${1}/oceanbgc-[23]d-${var}-*.nc
+    do
+        out_path_file=${path_file/.nc/_sigfig${sf[${var}]}.nc}
+        lockfile=${out_path_file/.nc/-IN-PROGRESS}  # to prevent 2 jobs processing the same file 
+        if [[ ! -f ${out_path_file} ]] && [[ ! -f ${lockfile} ]]
+        then
+            # touch ${lockfile}
+            echo "ncks -v ${var} -7 -L 5 --baa=4 --ppc ${var}=${sf[${var}]} ${path_file} ${out_path_file}"
+            # chgrp ik11 ${out_path_file}
+            # chmod g+r ${out_path_file}
+            # rm ${lockfile}
+        else
+            echo "--- Skipping ${path_file}"
+        fi
+    done
 done

@@ -1,7 +1,6 @@
 #!/bin/bash
 
-for num_dir in {733..734}
+for dir_num in {733..734}
 do
-	vi reduce_sigfig.sh -c ":%s/num_dir=.*/num_dir=${num_dir}/" -c ":wq"
-	qsub reduce_sigfig.sh
+	qsub -N sigfig${dir_num} ./reduce_sigfig.sh -- /g/data/ik11/outputs/access-om2-01/01deg_jra55v140_iaf_cycle4/output${dir_num}/ocean
 done
