@@ -1,10 +1,4 @@
 #!/bin/bash
-#PBS -l ncpus=1
-#PBS -l mem=12GB
-#PBS -q copyq
-#PBS -l walltime=05:00:00
-#PBS -l storage=gdata/ik11+scratch/v45+scratch/x77
-#PBS -l wd
 
 # Reduce precision of output files.
 # Script accepts 1 arg, which is the path to an ocean output dir, e.g.
