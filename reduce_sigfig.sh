@@ -97,7 +97,7 @@ shopt -s nullglob
 for var in "${!sf[@]}"
 do
     echo ${var}
-    for path_file in ${1}/oceanbgc-[23]d-${var}-*.nc
+    for path_file in ${1}/oceanbgc-[23]d-${var}-*_[0-9][0-9].nc
     do
         out_path_file=${path_file/.nc/_sigfig${sf[${var}]}.nc}
         lockfile=${out_path_file/.nc/-IN-PROGRESS}  # to prevent 2 jobs processing the same file 
