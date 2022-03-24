@@ -1,14 +1,14 @@
 #!/bin/bash
  
 #PBS -l ncpus=1
-#PBS -l mem=8GB
+#PBS -l mem=12GB
 #PBS -q normal
-#PBS -l walltime=01:00:00
+#PBS -l walltime=00:30:00
 #PBS -l storage=gdata/ik11+scratch/v45+scratch/x77
 #PBS -l wd
 
 lev_comp=5
-num_dir=732
+num_dir=734
 path_ocean=/g/data/ik11/outputs/access-om2-01/01deg_jra55v140_iaf_cycle4/output${num_dir}/ocean
 
 for path_file in ${path_ocean}/oceanbgc-[2,3]d-*.nc
