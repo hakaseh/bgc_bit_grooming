@@ -105,10 +105,14 @@ do
         then
             touch ${lockfile}
             echo "ncks -v ${var} -7 -L 5 --baa=4 --ppc ${var}=${sf[${var}]} ${path_file} ${out_path_file}"
-            ncks -v ${var} -7 -L 5 --baa=4 --ppc ${var}=${sf[${var}]} ${path_file} ${out_path_file}
-            chgrp ik11 ${out_path_file}
-            chmod g+r ${out_path_file}
-            rm ${lockfile}
+            if ncks -v ${var} -7 -L 5 --baa=4 --ppc ${var}=${sf[${var}]} ${path_file} ${out_path_file}
+            then
+                chgrp ik11 ${out_path_file}
+                chmod g+r ${out_path_file}
+                rm ${lockfile}
+            else
+                echo "*** FAILED!"
+            fi
         else
             echo "--- Skipping ${path_file}"
         fi
