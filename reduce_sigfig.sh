@@ -109,9 +109,18 @@ do
             then
                 chgrp ik11 ${out_path_file}
                 chmod g+r ${out_path_file}
-                rm ${lockfile}
+                pre_size=`stat -c %s ${path_file}`
+                post_size=`stat -c %s ${out_path_file}`
+                let "post_size_scaled = 100 * ${post_size}"
+                if (( post_size_scaled > pre_size ))
+                then
+                    echo "rm ${path_file}"
+                    rm ${path_file} && rm ${lockfile}
+                else
+                    echo "*** output suspiciously small - retaining ${path_file} and ${lockfile}"
+                fi
             else
-                echo "*** FAILED!"
+                echo "*** FAILED! - retaining ${path_file} and ${lockfile}"
             fi
         else
             echo "--- Skipping ${path_file}"
