@@ -99,12 +99,12 @@ do
     echo ${var}
     for path_file in ${1}/oceanbgc-[23]d-${var}-*-mean-*.nc
     do
-        if [[ ${path_file} == *sigfig* ]]
+        if [[ $(basename ${path_file}) == *sigfig* ]]
         then
             continue;  # don't bit-groom a bit-groomed file
         fi
-        out_path_file=${path_file/-mean-/-mean-sigfig-${sf[${var}]}-}
-        lockfile=${out_path_file/.nc/-IN-PROGRESS}  # to prevent 2 jobs processing the same file 
+        out_path_file=${path_file/-mean-/-mean-${sf[${var}]}-sigfig-}
+        lockfile=${out_path_file/.nc/-IN-PROGRESS}  # to prevent 2 jobs processing the same file
         if [[ ! -f ${out_path_file} ]] && [[ ! -f ${lockfile} ]]
         then
             touch ${lockfile}
